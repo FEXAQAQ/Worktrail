@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+# 真實紀錄檔只放去識別化後的版本；原始檔不要提交
+test/fixtures/transcripts/private/
+
+# 開發初期的規格書，只留在本機參考，不進版控
+docs/SPEC.md
+Worktrail 工跡：開發規格書.md

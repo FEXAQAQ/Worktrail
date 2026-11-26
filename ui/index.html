@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Worktrail</title>
+    <script>
+      // 放在所有樣式表之前：先套用上次的主題，第一格畫面就是正確底色
+      // （系統深色、UI 淺色時，color-scheme 若維持 "light dark"，會先畫深底再跳淺底而閃爍）
+      // 同一個視窗重新整理時不重播開場動畫
+      try {
+        var t = localStorage.getItem('wt.theme.dark');
+        if (t === '1') document.documentElement.classList.add('dark');
+        if (t === '0') document.documentElement.classList.add('light');
+        if (t === '1' || t === '0') document.querySelector('meta[name="color-scheme"]').content = t === '1' ? 'dark' : 'light';
+        if (localStorage.getItem('wt.style') === 'notebook') document.documentElement.classList.add('notebook');
+        var fromLauncher = new URLSearchParams(location.search).get('intro') === 'seen';
+        if (fromLauncher) history.replaceState(null, '', location.pathname + location.hash);
+        window.__WT_INTRO_SEEN__ = fromLauncher || sessionStorage.getItem('wt.intro') === '1';
+        if (window.__WT_INTRO_SEEN__) document.documentElement.classList.add('intro-seen');
+      } catch (e) {}
+    </script>
+    <!-- 底色直接寫在頁面裡，不必等外部樣式表；與 splash.css 的 --sp-page 一致 -->
+    <style>
+      html { background: #fafafa; }
+      html.dark { background: #0b0b0f; }
+      @media (prefers-color-scheme: dark) { html:not(.light) { background: #0b0b0f; } }
+    </style>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="stylesheet" href="/splash.css" />
+    <!-- 筆記本風格的標題字型（霞鶩文楷）；離線時退回系統的楷體。
+         以 media="print" 載入再切換，不擋第一格畫面（開場畫面用不到這個字型） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Caveat:wght@600&display=swap" media="print" onload="this.media='all'" />
+  </head>
+  <body>
+    <div id="splash" aria-hidden="true">
+      <div class="sp-mark">
+        <svg viewBox="0 0 32 32">
+          <rect class="sp-bg" width="32" height="32" rx="8" />
+          <path class="sp-trail" pathLength="100" d="M8 21c3-1 4-6 7-6s3 4 5 4 3-5 4-7" />
+          <circle class="sp-dot sp-d1" cx="8" cy="21" r="2" />
+          <circle class="sp-dot sp-d2" cx="24" cy="12" r="2" />
+        </svg>
+      </div>
+      <div class="sp-word">Worktrail</div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

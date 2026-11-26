@@ -1,0 +1,699 @@
+@import 'tailwindcss';
+
+/* 規格 11.2：深色模式以 .dark 類別切換（設定可選 system / light / dark） */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Inter', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, ui-monospace, monospace;
+
+  /* 規格 11.2 字級 12/14/16/20/28；2xs（11px）只給密集的輔助標記（快捷鍵、日曆格、計數徽章），見 DECISIONS.md */
+  --text-2xs: 11px;
+  --text-2xs--line-height: 1.4;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+
+  /* 圓角只用四種：card 12、ctl 8（按鈕、輸入框、可點的列）、sm 4（色塊、行內程式碼）、full（標籤、徽章） */
+  --radius-card: 12px;
+  --radius-ctl: 8px;
+  --radius-sm: 4px;
+
+  /* 浮層陰影只有兩級：pop（下拉、toast、tooltip、拖曳中）、overlay（對話框、指令面板、側邊面板） */
+  --shadow-pop: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-overlay: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+/* 色彩用 inline：utilities 直接寫 var(--ink) 而非 var(--color-ink)，
+ * 子樹覆寫 token（例如一鍵快照的 .force-light）時顏色才會跟著變。 */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-page: var(--page);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-hover: var(--hover);
+  --color-on-accent: var(--on-accent);
+  --color-overlay: rgb(0 0 0 / 0.35);
+  /* 語意色：錯誤／警告／成功／略過，各風格各有一組 */
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-line: var(--danger-line);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-line: var(--warn-line);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-muted: var(--muted);
+  --color-muted-soft: var(--muted-soft);
+}
+
+/* .force-light：一鍵快照的分享卡片一律用淺色 token（深色模式下也一樣），見 DECISIONS.md */
+:root,
+.force-light {
+  --accent: #4f46e5;
+  --accent-soft: #eef2ff;
+  --page: #fafafa;
+  --card: #ffffff;
+  --line: #e5e7eb;
+  --ink: #111827;
+  --ink-2: #4b5563;
+  --ink-3: #9ca3af;
+  --hover: #f3f4f6;
+  --on-accent: #ffffff;
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --danger-line: #fecaca;
+  --warn: #b45309;
+  --warn-soft: #fffbeb;
+  --warn-line: #fde68a;
+  --success: #047857;
+  --success-soft: #ecfdf5;
+  --muted: #475569;
+  --muted-soft: #f1f5f9;
+  /* 圖層順序 */
+  --z-sticky: 1;
+  --z-raised: 10;
+  --z-panel: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+  --z-popover: 100;
+  /* 專案色票：依專案名稱固定對應一組（見 ui.tsx 的 projectColor），每組有文字色與淡底色 */
+  --p0: #0f766e;
+  --p0-soft: #ccfbf1;
+  --p1: #1d4ed8;
+  --p1-soft: #dbeafe;
+  --p2: #6d28d9;
+  --p2-soft: #ede9fe;
+  --p3: #be123c;
+  --p3-soft: #ffe4e6;
+  --p4: #b45309;
+  --p4-soft: #fef3c7;
+  --p5: #15803d;
+  --p5-soft: #dcfce7;
+  --p6: #a21caf;
+  --p6-soft: #fae8ff;
+  --p7: #0369a1;
+  --p7-soft: #e0f2fe;
+  color-scheme: light;
+}
+
+.dark {
+  --accent: #818cf8;
+  --accent-soft: #1e1b4b;
+  --page: #0b0b0f;
+  --card: #16161d;
+  --line: #26262f;
+  --ink: #f3f4f6;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --hover: #1f1f29;
+  --on-accent: #0b0b0f;
+  --danger: #f87171;
+  --danger-soft: #2a1215;
+  --danger-line: #7f1d1d;
+  --warn: #fcd34d;
+  --warn-soft: #2a1d0a;
+  --warn-line: #78350f;
+  --success: #6ee7b7;
+  --success-soft: #0f2a22;
+  --muted: #cbd5e1;
+  --muted-soft: #1e2533;
+  --p0: #5eead4;
+  --p0-soft: #134e4a;
+  --p1: #93c5fd;
+  --p1-soft: #1e3a8a;
+  --p2: #c4b5fd;
+  --p2-soft: #2e1065;
+  --p3: #fda4af;
+  --p3-soft: #4c0519;
+  --p4: #fcd34d;
+  --p4-soft: #451a03;
+  --p5: #86efac;
+  --p5-soft: #14532d;
+  --p6: #f0abfc;
+  --p6-soft: #4a044e;
+  --p7: #7dd3fc;
+  --p7-soft: #0c4a6e;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 焦點框清楚可見（規格 11.5 無障礙） */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-ctl);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--hover) 25%, var(--line) 37%, var(--hover) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: var(--radius-ctl);
+}
+@keyframes shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* 共用緩動：進場快速起步、柔和收尾（類 iOS 抽屜）；退場加速離開 */
+:root {
+  --ease-out-soft: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-in-soft: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* 右側任務面板：遮罩淡入、面板從右側整個滑入；關閉時反向（退場 200 ms，與 TaskPanel 的 PANEL_EXIT_MS 一致） */
+.panel-backdrop {
+  animation: backdrop-in 240ms ease-out both;
+}
+.panel-backdrop.is-closing {
+  animation: backdrop-out 200ms ease-in both;
+}
+.panel-sheet {
+  animation: sheet-in 380ms var(--ease-out-soft) both;
+  will-change: transform;
+}
+.panel-sheet.is-closing {
+  animation: sheet-out 200ms var(--ease-in-soft) both;
+}
+@keyframes backdrop-in {
+  from {
+    background-color: transparent;
+  }
+}
+@keyframes backdrop-out {
+  to {
+    background-color: transparent;
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateX(100%);
+    box-shadow: none;
+  }
+}
+@keyframes sheet-out {
+  to {
+    transform: translateX(100%);
+    box-shadow: none;
+  }
+}
+
+/* 切換頁面：內容輕微上浮淡入 */
+.page-in {
+  animation: page-in 260ms var(--ease-out-soft) backwards; /* 不用 both：保留 transform 會讓頁內 fixed 面板被限制在內容區 */
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* 左側導覽：目前頁面的底色在項目之間滑動 */
+.nav-indicator {
+  transition:
+    transform 320ms var(--ease-out-soft),
+    opacity 160ms ease-out;
+}
+
+/* 左側導覽收合：寬度與文字同步過渡，文字不會突然出現或消失 */
+.nav-rail {
+  transition: width 280ms var(--ease-out-soft);
+}
+.nav-label {
+  white-space: nowrap;
+  overflow: hidden;
+  transition:
+    opacity 180ms ease-out 80ms,
+    transform 280ms var(--ease-out-soft);
+}
+.nav-rail.is-collapsed .nav-label {
+  opacity: 0;
+  transform: translateX(-4px);
+  pointer-events: none;
+  transition:
+    opacity 120ms ease-in,
+    transform 200ms var(--ease-in-soft);
+}
+
+.fade-in {
+  animation: fade-in 150ms ease-out;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Markdown 預覽 */
+.prose-wt {
+  line-height: 1.75;
+}
+.prose-wt h1 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+.prose-wt h2 {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin: 24px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.prose-wt h3 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin: 18px 0 6px;
+}
+.prose-wt h4 {
+  font-weight: 600;
+  margin: 12px 0 4px;
+}
+.prose-wt p {
+  margin: 8px 0;
+}
+.prose-wt ul,
+.prose-wt ol {
+  padding-left: 22px;
+  margin: 6px 0;
+}
+.prose-wt ul {
+  list-style: disc;
+}
+.prose-wt ol {
+  list-style: decimal;
+}
+.prose-wt li {
+  margin: 2px 0;
+}
+.prose-wt code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background: var(--hover);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+}
+.prose-wt pre {
+  background: var(--hover);
+  padding: 12px;
+  border-radius: var(--radius-ctl);
+  overflow: auto;
+}
+.prose-wt pre code {
+  background: none;
+  padding: 0;
+}
+.prose-wt table {
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: var(--text-xs);
+}
+.prose-wt th,
+.prose-wt td {
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  text-align: left;
+}
+.prose-wt th {
+  background: var(--hover);
+  font-weight: 600;
+}
+.prose-wt blockquote {
+  border-left: 3px solid var(--line);
+  padding-left: 12px;
+  color: var(--ink-2);
+}
+.prose-wt a {
+  color: var(--accent);
+}
+.prose-wt hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 20px 0;
+}
+
+/* CodeMirror 融入主題 */
+.cm-editor {
+  height: 100%;
+  font-size: var(--text-sm);
+  background: transparent !important;
+}
+.cm-editor.cm-focused {
+  outline: none !important;
+}
+.cm-scroller {
+  font-family: var(--font-mono) !important;
+  line-height: 1.7 !important;
+}
+.cm-gutters {
+  background: transparent !important;
+  border-right: 1px solid var(--line) !important;
+  color: var(--ink-3) !important;
+}
+.cm-unknown-var {
+  text-decoration: wavy underline var(--warn);
+  text-underline-offset: 3px;
+}
+.cm-known-var {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+[cmdk-item][data-selected='true'] {
+  background: var(--hover);
+}
+
+/* ───────────── 筆記本風格（ui.style = notebook）
+ * 與淺／深色獨立：html 同時帶 .notebook 與 .dark/.light。
+ * 只覆寫顏色 token 與少數掛勾類別（wt-*），元件本身不需知道風格。
+ * 這段不在 @layer 內，因此會蓋過 Tailwind utilities。 */
+.notebook,
+.notebook .force-light {
+  --accent: #2f5d9e; /* 鋼筆藍 */
+  --accent-soft: #e3ebf7;
+  --page: #efe6d2; /* 書桌／牛皮紙 */
+  --card: #fffdf7; /* 米白紙 */
+  --line: #e3d9c4;
+  --ink: #2b2620;
+  --ink-2: #5d5446;
+  --ink-3: #9b907c;
+  --hover: #f6efe0;
+  --on-accent: #fffdf7;
+  --danger: #a8443f;
+  --danger-soft: #f6e1dd;
+  --danger-line: #e9c2bc;
+  --warn: #94631a;
+  --warn-soft: #f5e9cf;
+  --warn-line: #e6cf9e;
+  --success: #36654a;
+  --success-soft: #dcebdf;
+  --muted: #5d5446;
+  --muted-soft: #ece4d3;
+  --p0: #36654a;
+  --p0-soft: #dcebdf;
+  --p1: #2f5d9e;
+  --p1-soft: #e0e9f5;
+  --p2: #6a4c93;
+  --p2-soft: #ebe3f3;
+  --p3: #a8443f;
+  --p3-soft: #f6e1dd;
+  --p4: #94631a;
+  --p4-soft: #f5e9cf;
+  --p5: #4f7a2a;
+  --p5-soft: #e5efd6;
+  --p6: #8c3f6e;
+  --p6-soft: #f3e0ea;
+  --p7: #2f7480;
+  --p7-soft: #dcecee;
+  --nb-rule: #dce6f0; /* 橫線 */
+  --nb-margin: #e8a4a4; /* 紅色邊線 */
+  --nb-marker: rgba(255, 214, 64, 0.55); /* 螢光筆 */
+  --nb-tape: rgba(214, 196, 150, 0.65);
+  --nb-sticky: #fff4b8;
+  --nb-cover: #7a4e33; /* 皮革封面（側欄） */
+  --nb-cover-ink: #dcc5a3;
+  --nb-cover-strong: #ead9bb; /* 書名 */
+  --nb-stitch: rgba(240, 215, 170, 0.4); /* 縫線 */
+  --nb-press: #68412a; /* 目前頁面的凹壓 */
+  --nb-foil: #e8c87e; /* 燙金字 */
+  --nb-hole: #8a6a52; /* 打孔透出的封面（比皮革淡，避免太搶眼） */
+  --nb-stamp: #c0504d;
+  --nb-shadow: rgba(60, 40, 10, 0.35);
+  --font-hand: 'LXGW WenKai TC', 'Kaiti TC', 'BiauKai', 'DFKai-SB', '標楷體', serif;
+  --radius-card: 4px;
+  --radius-ctl: 6px;
+}
+.notebook.dark {
+  --accent: #8fb1e6;
+  --accent-soft: #25324a;
+  --page: #191714;
+  --card: #24211d;
+  --line: #3a352d;
+  --ink: #ece4d3;
+  --ink-2: #b8ad98;
+  --ink-3: #857a68;
+  --hover: #2d2924;
+  --on-accent: #191714;
+  --danger: #eba49e;
+  --danger-soft: #452a28;
+  --danger-line: #6e3b3b;
+  --warn: #e6c48a;
+  --warn-soft: #40331d;
+  --warn-line: #6b5328;
+  --success: #a5d6b3;
+  --success-soft: #26392d;
+  --muted: #b8ad98;
+  --muted-soft: #2d2924;
+  --p0: #a5d6b3;
+  --p0-soft: #26392d;
+  --p1: #a9c3ec;
+  --p1-soft: #25324a;
+  --p2: #c7b3e3;
+  --p2-soft: #352a45;
+  --p3: #eba49e;
+  --p3-soft: #452a28;
+  --p4: #e6c48a;
+  --p4-soft: #40331d;
+  --p5: #bcd99a;
+  --p5-soft: #2f3a22;
+  --p6: #e3a9c9;
+  --p6-soft: #422a37;
+  --p7: #9fd2d9;
+  --p7-soft: #223a3d;
+  --nb-rule: #2f3540;
+  --nb-margin: #6e3b3b;
+  --nb-marker: rgba(250, 204, 21, 0.22);
+  --nb-tape: rgba(160, 140, 100, 0.35);
+  --nb-sticky: #3a3522;
+  --nb-cover: #2a1f18;
+  --nb-cover-ink: #a8957a;
+  --nb-cover-strong: #d6c6a8;
+  --nb-stitch: rgba(217, 181, 106, 0.2);
+  --nb-press: #1f1712;
+  --nb-foil: #c9a45c;
+  --nb-hole: #0e0c0a;
+  --nb-stamp: #e07a76;
+  --nb-shadow: rgba(0, 0, 0, 0.6);
+}
+
+/* 側欄＝皮革封面：內縮的縫線框，目前頁面像壓進皮革裡、字是燙金 */
+.notebook .wt-nav {
+  position: relative;
+  background: var(--nb-cover);
+  border-right-color: transparent;
+}
+.notebook .wt-nav::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border: 1.5px dashed var(--nb-stitch);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.notebook .wt-nav .border-line {
+  border-color: var(--nb-stitch);
+}
+/* 底部分隔改成縫線，收在縫線框內、與上方項目同寬，不再橫切過框線 */
+.notebook .wt-nav .wt-nav-foot {
+  margin: auto 12px 6px; /* 上方 auto：保留 mt-auto 把它推到底部 */
+  padding: 10px 0 6px;
+  border-top: 1.5px dashed var(--nb-stitch);
+}
+/* 紙頁左緣的打孔：孔是打在紙上、透出後面的封面，上緣帶一點陰影 */
+.notebook .wt-sheet {
+  position: relative;
+}
+@media (min-width: 768px) {
+  .notebook .wt-sheet::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 20px;
+    z-index: 1;
+    pointer-events: none;
+    /* 打孔：平面、邊緣俐落，不加陰影（加了遠看像重影） */
+    background: radial-gradient(circle at 13px 20px, var(--nb-hole) 3.5px, transparent 4px) 0 0 / 20px 28px repeat-y;
+  }
+}
+.notebook .wt-nav a,
+.notebook .wt-nav button {
+  color: var(--nb-cover-ink);
+}
+.notebook .wt-nav a {
+  font-family: var(--font-hand);
+  font-size: var(--text-base);
+}
+.notebook .wt-nav a[aria-current='page'] {
+  color: var(--nb-foil);
+}
+.notebook .wt-nav a:hover,
+.notebook .wt-nav button:hover {
+  background: rgb(255 240 215 / 0.1);
+}
+.notebook.dark .wt-nav a:hover,
+.notebook.dark .wt-nav button:hover {
+  background: rgb(255 240 215 / 0.05);
+}
+/* 凹壓：比皮革深一點，上方內陰影、下緣一道亮邊 */
+.notebook .wt-nav .nav-indicator,
+.notebook .wt-nav a[aria-current='page'].bg-accent-soft {
+  background: var(--nb-press);
+  box-shadow:
+    inset 0 2px 3px rgb(0 0 0 / 0.35),
+    0 1px 0 rgb(255 235 200 / 0.12);
+}
+.notebook.dark .wt-nav .nav-indicator,
+.notebook.dark .wt-nav a[aria-current='page'].bg-accent-soft {
+  box-shadow:
+    inset 0 2px 3px rgb(0 0 0 / 0.5),
+    0 1px 0 rgb(255 235 200 / 0.05);
+}
+.notebook .wt-nav .wt-search {
+  background: rgb(0 0 0 / 0.12);
+  border-color: var(--nb-stitch);
+  color: var(--nb-cover-ink);
+}
+.notebook .wt-nav .wt-brand {
+  font-family: var(--font-hand);
+  font-size: var(--text-lg);
+  color: var(--nb-cover-strong);
+}
+
+/* 頁面標題：手寫字＋螢光筆 */
+.notebook .wt-heading {
+  position: relative;
+  display: inline-block;
+  z-index: 0;
+  font-family: var(--font-hand);
+  letter-spacing: 0.5px;
+}
+.notebook .wt-heading::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  right: -6px;
+  bottom: 2px;
+  height: 11px;
+  z-index: -1;
+  background: var(--nb-marker);
+  border-radius: 3px 8px 4px 10px;
+  transform: skewX(-8deg);
+}
+
+/* 一般卡片：紙張 */
+.notebook .wt-card {
+  border-color: transparent;
+  box-shadow:
+    0 1px 1px rgb(0 0 0 / 0.06),
+    0 6px 14px -8px var(--nb-shadow);
+}
+.notebook .wt-card.is-dashed {
+  border-color: var(--ink-3);
+}
+
+/* 任務卡：橫線紙＋紅色邊線＋紙膠帶 */
+.notebook .wt-task {
+  position: relative;
+  padding-left: 44px;
+  background:
+    linear-gradient(90deg, transparent 31px, var(--nb-margin) 31px, var(--nb-margin) 32.5px, transparent 32.5px),
+    repeating-linear-gradient(var(--card) 0 25px, var(--nb-rule) 25px 26px);
+  background-color: var(--card);
+}
+.notebook .wt-task::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 28px;
+  width: 72px;
+  height: 18px;
+  background: var(--nb-tape);
+  transform: rotate(3deg);
+  clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 50%);
+  pointer-events: none;
+}
+.notebook .wt-task:nth-child(even)::before {
+  right: auto;
+  left: 56px;
+  transform: rotate(-4deg);
+}
+.notebook .wt-task-title {
+  font-family: var(--font-hand);
+  font-size: var(--text-base);
+}
+/* 待補摘要：便利貼 */
+.notebook .wt-task.is-dashed {
+  padding-left: 16px;
+  background: var(--nb-sticky);
+  border-color: transparent;
+  box-shadow: 0 10px 14px -10px var(--nb-shadow);
+}
+.notebook .wt-task.is-dashed::before {
+  left: 50%;
+  right: auto;
+  width: 56px;
+  margin-left: -28px;
+  transform: rotate(-1deg);
+}
+
+/* 狀態：印章 */
+.notebook .wt-status {
+  background: transparent;
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transform: rotate(-2deg);
+}
+.notebook .wt-tag {
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook .wt-status {
+    transform: none;
+  }
+}
+/* 被選取的卡片：box-shadow 會蓋掉 Tailwind 的 ring，這裡補回來 */
+.notebook .wt-card.ring-2 {
+  box-shadow:
+    0 0 0 2px var(--accent),
+    0 6px 14px -8px var(--nb-shadow);
+}

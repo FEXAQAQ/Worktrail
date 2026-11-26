@@ -1,0 +1,7 @@
+# 換行固定：macOS 腳本用 LF，Windows 批次檔與 PowerShell 用 CRLF，不受 core.autocrlf 影響
+* text=auto
+*.sh text eol=lf
+*.command text eol=lf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.lnk binary

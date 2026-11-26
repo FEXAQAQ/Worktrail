@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      color-scheme 必須寫死：維持 "light dark" 時，Chromium 在腳本執行前會先依系統深色畫一格深底（實測 Edge 獨立視窗）。
+      建置時另產生 content="dark" 的 splash-dark.html，啟動器依設定的主題選檔（scripts/build.mjs、src/launcher/main.ts）。
+    -->
+    <meta name="color-scheme" content="light" />
+    <title>Worktrail</title>
+    <script>
+      // 放在樣式表之前：依啟動器帶來的主題決定第一格的底色，避免系統深色、UI 淺色時先深後淺而閃爍
+      (function () {
+        var theme = new URLSearchParams(location.search).get('theme');
+        if (theme !== 'dark' && theme !== 'light') return;
+        document.documentElement.classList.add(theme);
+        document.querySelector('meta[name="color-scheme"]').content = theme;
+      })();
+    </script>
+    <style>
+      html { background: #fafafa; }
+      html.dark { background: #0b0b0f; }
+      @media (prefers-color-scheme: dark) { html:not(.light) { background: #0b0b0f; } }
+    </style>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="splash.css" />
+  </head>
+  <body>
+    <!--
+      啟動器過場（規格 11.6 第 3 步）：服務尚未執行時，啟動器先以本機檔案開啟這頁，
+      同時在背景啟動服務；服務就緒後自動切換到 UI，10 秒內沒有回應則顯示錯誤。
+      以載入服務的圖示（不需 token）判斷是否就緒。
+    -->
+    <div id="splash" class="waiting">
+      <div class="sp-mark">
+        <svg viewBox="0 0 32 32">
+          <rect class="sp-bg" width="32" height="32" rx="8" />
+          <path class="sp-trail" pathLength="100" d="M8 21c3-1 4-6 7-6s3 4 5 4 3-5 4-7" />
+          <circle class="sp-dot sp-d1" cx="8" cy="21" r="2" />
+          <circle class="sp-dot sp-d2" cx="24" cy="12" r="2" />
+        </svg>
+      </div>
+      <div class="sp-word">Worktrail</div>
+      <div class="sp-status" id="status">正在啟動服務…</div>
+    </div>
+    <script>
+      (function () {
+        var params = new URLSearchParams(location.search);
+        var port = Number(params.get('port')) || 4870;
+        var url = 'http://localhost:' + port + '/';
+        var started = Date.now();
+        var INTRO_MS = 2100; // 與 splash.css 開場時間軸一致
+        var status = document.getElementById('status');
+        function check() {
+          var img = new Image();
+          img.onload = function () {
+            // 等開場動畫播完再切換；過場已播過開場動畫，UI 不再重播
+            setTimeout(function () {
+              location.replace(url + '?intro=seen');
+            }, Math.max(0, INTRO_MS - (Date.now() - started)));
+          };
+          img.onerror = function () {
+            var waited = Date.now() - started;
+            if (waited > 3000) status.textContent = '正在啟動服務…（第一次啟動可能需要幾秒）';
+            if (waited > 10000) {
+              document.getElementById('splash').classList.remove('waiting');
+              status.className = 'sp-status error';
+              status.innerHTML = 'Worktrail 服務在 10 秒內沒有回應。<br />請關閉視窗後再試一次，或在專案資料夾執行 node dist\\cli.cjs doctor 檢查。';
+              setTimeout(check, 3000);
+              return;
+            }
+            setTimeout(check, 250);
+          };
+          img.src = url + 'favicon.svg?t=' + Date.now();
+        }
+        setTimeout(check, 400);
+      })();
+    </script>
+  </body>
+</html>

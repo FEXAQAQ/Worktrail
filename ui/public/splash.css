@@ -1,0 +1,189 @@
+/* Worktrail 啟動畫面：UI 載入時（index.html）與啟動器過場（splash.html）共用 */
+:root {
+  --sp-page: #fafafa;
+  --sp-ink: #111827;
+  --sp-ink-3: #9ca3af;
+  --sp-accent: #4f46e5;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --sp-page: #0b0b0f;
+    --sp-ink: #f3f4f6;
+    --sp-ink-3: #71717a;
+    --sp-accent: #818cf8;
+  }
+}
+:root.dark {
+  --sp-page: #0b0b0f;
+  --sp-ink: #f3f4f6;
+  --sp-ink-3: #71717a;
+  --sp-accent: #818cf8;
+}
+
+/* 換頁時不露出白底 */
+html,
+body {
+  margin: 0;
+  background: var(--sp-page);
+}
+
+/*
+  開場時間軸（約 2 秒）：
+  0.00s 圖示彈出 → 0.45s 起點 → 0.60–1.60s 軌跡畫出 → 1.50s 終點 → 1.00s 字樣、1.50s 狀態文字
+  時間調整時要一起改 main.tsx 的 INTRO_MS 與 splash.html 的 INTRO_MS。
+*/
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: var(--sp-page);
+  font-family: 'Inter', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  transition: opacity 0.5s ease-out, visibility 0.5s;
+}
+#splash.done {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.sp-mark {
+  width: 76px;
+  height: 76px;
+  animation: sp-pop 0.7s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+.sp-mark svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.sp-bg {
+  fill: var(--sp-accent);
+}
+/* 軌跡線：從起點畫到終點（path 設 pathLength="100"，長度單位固定為 100） */
+.sp-trail {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100 100;
+  stroke-dashoffset: 100;
+  animation: sp-draw 1s 0.6s cubic-bezier(0.45, 0, 0.25, 1) both;
+}
+.sp-dot {
+  fill: #fff;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+}
+.sp-d1 {
+  animation: sp-dot 0.45s 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.sp-d2 {
+  animation: sp-dot 0.45s 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.sp-word {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--sp-ink);
+  opacity: 0;
+  transform: translateY(6px);
+  animation: sp-rise 0.6s 1s ease-out both;
+}
+.sp-status {
+  min-height: 20px;
+  font-size: 13px;
+  color: var(--sp-ink-3);
+  text-align: center;
+  line-height: 1.6;
+  opacity: 0;
+  animation: sp-rise 0.6s 1.5s ease-out both;
+}
+.sp-status.error {
+  color: #dc2626;
+}
+/* 等待服務中：開場畫完後，軌跡反覆「畫出 → 收尾」 */
+#splash.waiting .sp-trail {
+  animation: sp-draw 1s 0.6s cubic-bezier(0.45, 0, 0.25, 1) both, sp-loop 2.4s 2.1s ease-in-out infinite;
+}
+
+@keyframes sp-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes sp-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes sp-loop {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  45% {
+    stroke-dashoffset: -100;
+  }
+  55% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes sp-dot {
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes sp-rise {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 重新整理或從過場切換過來時不重播（class 在 <head> 就加在 <html>，第一格畫面即是完成狀態）；減少動態效果時直接顯示完成狀態 */
+.intro-seen #splash *,
+.intro-seen #splash {
+  animation: none !important;
+}
+.intro-seen .sp-trail {
+  stroke-dashoffset: 0;
+}
+.intro-seen .sp-dot {
+  transform: scale(1);
+}
+.intro-seen .sp-word,
+.intro-seen .sp-status {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  #splash *,
+  #splash {
+    animation: none !important;
+    transition: none !important;
+  }
+  .sp-trail {
+    stroke-dashoffset: 0;
+  }
+  .sp-dot {
+    transform: scale(1);
+  }
+  .sp-word,
+  .sp-status {
+    opacity: 1;
+    transform: none;
+  }
+}
